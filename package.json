@@ -1,0 +1,21 @@
+{
+    "name": "ai-bot-app",
+    "version": "1.0.0",
+    "description": "RocketChat app that responds to bot mentions with message content and ID",
+    "main": "AiBotApp.js",
+    "scripts": {
+        "deploy": "rc-apps deploy --url $ROCKETCHAT_URL --username $ROCKETCHAT_USERNAME --password $ROCKETCHAT_PASSWORD",
+        "package": "rc-apps package"
+    },
+    "keywords": [
+        "rocketchat",
+        "bot",
+        "ai"
+    ],
+    "author": "azkaoru",
+    "license": "MIT",
+    "dependencies": {
+        "@rocket.chat/apps-engine": "^1.54.0",
+        "@rocket.chat/ui-kit": "^0.37.0"
+    }
+}
