@@ -1,7 +1,7 @@
 {
     "name": "ai-bot-app",
     "version": "1.0.0",
-    "description": "RocketChat app that responds to bot mentions with message content and ID",
+    "description": "RocketChat app that responds to bot mentions with message content, ID, channel name, and topic",
     "main": "AiBotApp.js",
     "scripts": {
         "deploy": "rc-apps deploy --url $ROCKETCHAT_URL --username $ROCKETCHAT_USERNAME --password $ROCKETCHAT_PASSWORD",

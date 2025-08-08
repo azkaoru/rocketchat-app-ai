@@ -15,7 +15,7 @@ const { IMessage, IPostMessageSent } = require('@rocket.chat/apps-engine/definit
  * AI Bot App for RocketChat
  * 
  * This app listens for messages that mention bots and responds with 
- * the original message content and its ID.
+ * the original message content, its ID, channel name, and channel topic.
  */
 class AiBotApp extends App {
     constructor(info, logger, accessors) {
@@ -50,8 +50,12 @@ class AiBotApp extends App {
             return;
         }
 
-        // Create response message with the original message content and ID
-        const responseText = `🤖 Bot mentioned! Received message: "${message.text}" with ID: ${message.id || 'unknown'}`;
+        // Get channel information
+        const channelName = message.room.displayName || message.room.slugifiedName || 'unknown';
+        const channelTopic = message.room.description || 'no topic set';
+        
+        // Create response message with the original message content, ID, channel name and topic
+        const responseText = `🤖 Bot mentioned! Received message: "${message.text}" with ID: ${message.id || 'unknown'}\nChannel: ${channelName}\nTopic: ${channelTopic}`;
         
         const builder = modify.getCreator().startMessage()
             .setRoom(message.room)
@@ -59,7 +63,7 @@ class AiBotApp extends App {
 
         try {
             await modify.getCreator().finish(builder);
-            this.getLogger().info(`Responded to bot mention in room: ${message.room.displayName || message.room.id}`);
+            this.getLogger().info(`Responded to bot mention in room: ${channelName} (${message.room.id})`);
         } catch (error) {
             this.getLogger().error('Failed to send response message:', error);
         }
