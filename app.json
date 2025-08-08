@@ -1,15 +1,1 @@
-{
-    "id": "ai-bot-app",
-    "version": "1.0.0",
-    "requiredApiVersion": "^1.4.0",
-    "iconFile": "icon.png",
-    "author": {
-        "name": "azkaoru",
-        "homepage": "",
-        "support": ""
-    },
-    "name": "AI Bot App",
-    "nameSlug": "ai-bot-app",
-    "classFile": "AiBotApp.ts",
-    "description": "RocketChat app that responds to bot mentions with message content and ID"
-}
+{"id":"e73739a0-4d20-490f-8e86-a36096e9d3f8","version":"1.0.0","requiredApiVersion":"^1.54.0","iconFile":"icon.png","author":{"name":"azkaoru","homepage":"","support":""},"name":"AI Bot App","nameSlug":"ai-bot-app","classFile":"AiBotApp.ts","description":"RocketChat app that responds to bot mentions with message content and ID"}
