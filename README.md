@@ -1,12 +1,12 @@
 # RocketChat AI Bot App
 
-RocketChat アプリケーションで、botにメンションしたメッセージを受け取って、受信したメッセージと受信したメッセージのIDを返すアプリです。
+RocketChat アプリケーションで、botにメンションしたメッセージを受け取って、受信したメッセージ、受信したメッセージのID、チャネル名、チャネルトピックを返すアプリです。
 
 ## 機能
 
 - メッセージ内の `@bot`, `@ai`, `@assistant` のメンションを検出
 - メンションが含まれるメッセージに対して自動応答
-- 元のメッセージ内容とメッセージIDを含む応答メッセージを送信
+- 元のメッセージ内容、メッセージID、チャネル名、チャネルトピックを含む応答メッセージを送信
 - 無限ループを防ぐためのアプリユーザー検出機能
 
 ## 動作例
@@ -18,7 +18,11 @@ RocketChat アプリケーションで、botにメンションしたメッセー
 
 アプリは以下のような応答を返します：
 ```
-🤖 Bot mentioned! Received message: "@bot こんにちは、助けてください" with ID: xyz123
+🤖 Bot mentioned! 
+📝 Received message: "@bot こんにちは、助けてください" 
+🆔 Message ID: xyz123
+📍 Channel: general
+📋 Topic: 一般的な議論のためのチャネル
 ```
 
 ## セットアップ
@@ -41,9 +45,8 @@ npm start
 ## ファイル構造
 
 - `app.json` - アプリの設定ファイル
-- `AiBotApp.ts` - メインのアプリケーションクラス
+- `AiBotApp.js` - メインのアプリケーションクラス
 - `package.json` - プロジェクトの依存関係
-- `tsconfig.json` - TypeScript設定
 
 ## 対応する@メンション
 
