@@ -5,7 +5,8 @@
     "main": "AiBotApp.ts",
     "scripts": {
         "build": "tsc",
-        "start": "rc-apps deploy --url http://localhost:3000 --username admin --password admin"
+        "deploy": "rc-apps deploy --url $ROCKETCHAT_URL --username $ROCKETCHAT_USERNAME --password $ROCKETCHAT_PASSWORD",
+        "package": "rc-apps package"
     },
     "keywords": [
         "rocketchat",
