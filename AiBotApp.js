@@ -1,17 +1,15 @@
-import {
+const {
     IConfigurationExtend,
     ILogger,
     IHttp,
     IModify,
     IPersistence,
     IRead,
-    IAppAccessors,
-    IHttpRequest,
-    IHttpResponse,
-} from '@rocket.chat/apps-engine/definition/accessors';
-import { App } from '@rocket.chat/apps-engine/definition/App';
-import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
-import { IMessage, IPostMessageSent } from '@rocket.chat/apps-engine/definition/messages';
+} = require('@rocket.chat/apps-engine/definition/accessors');
+const { App } = require('@rocket.chat/apps-engine/definition/App');
+const { IAppInfo } = require('@rocket.chat/apps-engine/definition/metadata');
+const { IAppAccessors } = require('@rocket.chat/apps-engine/definition/accessors');
+const { IMessage, IPostMessageSent } = require('@rocket.chat/apps-engine/definition/messages');
 
 /**
  * AI Bot App for RocketChat
@@ -20,36 +18,30 @@ import { IMessage, IPostMessageSent } from '@rocket.chat/apps-engine/definition/
  * the original message content, its ID, channel name, and channel topic.
  * Also triggers GitLab pipelines when configured via environment variables.
  */
-class AiBotApp extends App implements IPostMessageSent {
-    constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
+class AiBotApp extends App {
+    constructor(info, logger, accessors) {
         super(info, logger, accessors);
     }
 
     /**
      * Extracts the bot name from a message text
-     * @param text The message text
-     * @returns The extracted bot name or 'unknown'
+     * @param {string} text The message text
+     * @returns {string} The extracted bot name or 'unknown'
      */
-    private extractBotName(text: string): string {
+    extractBotName(text) {
         const match = text.match(/@(ai_deepseek|ai_qwen)(?:\s|$|[^a-zA-Z0-9._-])/i);
         return match ? match[1] : 'unknown';
     }
 
     /**
      * Triggers GitLab pipeline if environment variables are configured
-     * @param message The original message
-     * @param channelName The channel name
-     * @param channelTopic The channel topic
-     * @param botName The mentioned bot name
-     * @param http HTTP accessor for making requests
+     * @param {IMessage} message The original message
+     * @param {string} channelName The channel name
+     * @param {string} channelTopic The channel topic
+     * @param {string} botName The mentioned bot name
+     * @param {IHttp} http HTTP accessor for making requests
      */
-    private async triggerGitLabPipeline(
-        message: IMessage, 
-        channelName: string, 
-        channelTopic: string, 
-        botName: string, 
-        http: IHttp
-    ): Promise<void> {
+    async triggerGitLabPipeline(message, channelName, channelTopic, botName, http) {
         const trigger = process.env.GITLAB_PIPELINE_TRIGGER;
         if (trigger !== 'true') {
             return;
@@ -80,7 +72,7 @@ class AiBotApp extends App implements IPostMessageSent {
             }
         };
 
-        const request: IHttpRequest = {
+        const request = {
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -88,7 +80,7 @@ class AiBotApp extends App implements IPostMessageSent {
         };
 
         try {
-            const response: IHttpResponse = await http.post(url, request);
+            const response = await http.post(url, request);
             
             if (response.statusCode >= 200 && response.statusCode < 300) {
                 this.getLogger().info(`GitLab pipeline triggered successfully. Status: ${response.statusCode}`);
@@ -103,13 +95,13 @@ class AiBotApp extends App implements IPostMessageSent {
     /**
      * Handles messages sent to the chat and responds to bot mentions
      * 
-     * @param message The message that was sent
-     * @param read Read accessor for data
-     * @param http HTTP accessor for external requests
-     * @param persistence Persistence accessor for storing data
-     * @param modify Modify accessor for creating responses
+     * @param {IMessage} message The message that was sent
+     * @param {IRead} read Read accessor for data
+     * @param {IHttp} http HTTP accessor for external requests
+     * @param {IPersistence} persistence Persistence accessor for storing data
+     * @param {IModify} modify Modify accessor for creating responses
      */
-    public async executePostMessageSent(message: IMessage, read: IRead, http: IHttp, persistence: IPersistence, modify: IModify): Promise<void> {
+    async executePostMessageSent(message, read, http, persistence, modify) {
         // Skip if no text or no @ mentions
         if (!message.text || !message.text.includes('@')) {
             return;
@@ -154,4 +146,4 @@ class AiBotApp extends App implements IPostMessageSent {
     }
 }
 
-export { AiBotApp };
+module.exports = { AiBotApp };
