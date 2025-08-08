@@ -1,0 +1,15 @@
+{
+    "id": "ai-bot-app",
+    "version": "1.0.0",
+    "requiredApiVersion": "^1.4.0",
+    "iconFile": "icon.png",
+    "author": {
+        "name": "azkaoru",
+        "homepage": "",
+        "support": ""
+    },
+    "name": "AI Bot App",
+    "nameSlug": "ai-bot-app",
+    "classFile": "AiBotApp.ts",
+    "description": "RocketChat app that responds to bot mentions with message content and ID"
+}
