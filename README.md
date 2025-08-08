@@ -4,7 +4,7 @@ RocketChat アプリケーションで、botにメンションしたメッセー
 
 ## 機能
 
-- メッセージ内の `@bot`, `@ai`, `@assistant` のメンションを検出
+- メッセージ内の `@ai_deepseek`, `@ai_qwen` のメンションを検出
 - メンションが含まれるメッセージに対して自動応答
 - 元のメッセージ内容とメッセージIDを含む応答メッセージを送信
 - チャネル名とチャネルのトピック（説明）を含む応答メッセージを送信
@@ -14,12 +14,12 @@ RocketChat アプリケーションで、botにメンションしたメッセー
 
 ユーザーが以下のようなメッセージを送信した場合：
 ```
-@bot こんにちは、助けてください
+@ai_deepseek こんにちは、助けてください
 ```
 
 アプリは以下のような応答を返します：
 ```
-🤖 Bot mentioned! Received message: "@bot こんにちは、助けてください" with ID: xyz123
+🤖 Bot mentioned! Received message: "@ai_deepseek こんにちは、助けてください" with ID: xyz123
 Channel: general
 Topic: 一般的な議論のためのチャネル
 ```
@@ -51,8 +51,7 @@ npm start
 ## 対応する@メンション
 
 以下のパターンでbot メンションを検出します：
-- `@bot`
-- `@ai` 
-- `@assistant`
+- `@ai_deepseek`
+- `@ai_qwen`
 
 これらのメンションは単語境界で区切られている必要があり、メールアドレスや他の文字列の一部では反応しません。

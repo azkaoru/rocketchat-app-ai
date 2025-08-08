@@ -37,8 +37,8 @@ class AiBotApp extends App {
             return;
         }
 
-        // Check for bot mentions - more precise pattern to avoid email matches
-        const botMentionPattern = /@(?:bot|ai|assistant)(?:\s|$|[^a-zA-Z0-9._-])/i;
+        // Check for bot mentions - detect @ai_deepseek and @ai_qwen
+        const botMentionPattern = /@(?:ai_deepseek|ai_qwen)(?:\s|$|[^a-zA-Z0-9._-])/i;
         
         if (!botMentionPattern.test(message.text)) {
             return; // No bot mentioned, skip
