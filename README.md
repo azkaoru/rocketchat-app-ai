@@ -2,6 +2,8 @@
 
 RocketChat アプリケーションで、botにメンションしたメッセージを受け取って、受信したメッセージと受信したメッセージのID、チャネル名、チャネルのトピックを返すアプリです。
 
+このアプリは**TypeScript**で開発されており、RocketChatの推奨開発言語に準拠しています。
+
 また、環境変数が設定されている場合、GitLab CIパイプラインをトリガーする機能も含まれています。
 
 ## 機能
@@ -63,12 +65,17 @@ Topic: 一般的な議論のためのチャネル
 npm install
 ```
 
-2. プロジェクトをパッケージ:
+2. TypeScriptコードをビルド:
+```bash
+npm run build
+```
+
+3. プロジェクトをパッケージ:
 ```bash
 npm run package
 ```
 
-3. RocketChatサーバーにデプロイ:
+4. RocketChatサーバーにデプロイ:
 ```bash
 npm run deploy
 ```
@@ -76,8 +83,19 @@ npm run deploy
 ## ファイル構造
 
 - `app.json` - アプリの設定ファイル
-- `AiBotApp.js` - メインのアプリケーションクラス
+- `AiBotApp.ts` - メインのアプリケーションクラス（TypeScript）
 - `package.json` - プロジェクトの依存関係
+- `tsconfig.json` - TypeScript設定ファイル
+
+## 開発
+
+このアプリはTypeScriptで開発されています。コードを変更した後は、必ずビルドしてください：
+
+```bash
+npm run build
+```
+
+TypeScriptのコンパイラが型チェックを行い、エラーがないことを確認できます。
 
 ## 対応する@メンション
 
