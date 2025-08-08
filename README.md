@@ -63,17 +63,12 @@ Topic: 一般的な議論のためのチャネル
 npm install
 ```
 
-2. TypeScriptをコンパイル:
-```bash
-npm run build
-```
-
-3. プロジェクトをパッケージ:
+2. プロジェクトをパッケージ:
 ```bash
 npm run package
 ```
 
-4. RocketChatサーバーにデプロイ:
+3. RocketChatサーバーにデプロイ:
 ```bash
 npm run deploy
 ```
@@ -81,9 +76,8 @@ npm run deploy
 ## ファイル構造
 
 - `app.json` - アプリの設定ファイル
-- `AiBotApp.ts` - メインのアプリケーションクラス
+- `AiBotApp.js` - メインのアプリケーションクラス
 - `package.json` - プロジェクトの依存関係
-- `tsconfig.json` - TypeScript設定
 
 ## 対応する@メンション
 
