@@ -114,10 +114,11 @@ export class AiBotApp extends App implements IPostMessageSent {
         persistence: IPersistence, 
         modify: IModify
     ): Promise<void> {
-        // Skip if no text or no @ mentions
-        if (!message.text || !message.text.includes('@')) {
-            return;
+	// Skip if message.text is missing or doesn't contain a mention
+        if (typeof message.text !== 'string' || !message.text.includes('@')) {
+          return;
         }
+
 
         // Check for bot mentions - detect @ai_deepseek and @ai_qwen
         const botMentionPattern = /@(?:ai_deepseek|ai_qwen)(?:\s|$|[^a-zA-Z0-9._-])/i;
