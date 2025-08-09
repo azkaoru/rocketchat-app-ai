@@ -28,7 +28,10 @@ export class AiBotApp extends App implements IPostMessageSent {
      * @param text The message text
      * @returns The extracted bot name or 'unknown'
      */
-    private extractBotName(text: string): string {
+    private extractBotName(text: string | undefined): string {
+        if (!text || typeof text !== 'string') {
+            return 'unknown';
+        }
         const match = text.match(/@(ai_deepseek|ai_qwen)(?:\s|$|[^a-zA-Z0-9._-])/i);
         return match ? match[1] : 'unknown';
     }
@@ -69,12 +72,12 @@ export class AiBotApp extends App implements IPostMessageSent {
             token: token,
             ref: ref,
             variables: {
-                ROCKETCHAT_MESSAGE: message.text || '',
+                ROCKETCHAT_MESSAGE: (message && message.text) || '',
                 ROCKETCHAT_CHANNEL_NAME: channelName,
                 ROCKETCHAT_TOPIC: channelTopic,
                 ROCKETCHAT_BOT_NAME: botName,
-                ROCKETCHAT_MESSAGE_ID: message.id || '',
-                ROCKETCHAT_SENDER: message.sender.username || 'unknown'
+                ROCKETCHAT_MESSAGE_ID: (message && message.id) || '',
+                ROCKETCHAT_SENDER: (message && message.sender && message.sender.username) || 'unknown'
             }
         };
 
@@ -114,9 +117,17 @@ export class AiBotApp extends App implements IPostMessageSent {
         persistence: IPersistence, 
         modify: IModify
     ): Promise<void> {
-	// Skip if message.text is missing or doesn't contain a mention
-        if (typeof message.text !== 'string' || !message.text.includes('@')) {
-          return;
+        // Skip if message is missing or message.text is missing or doesn't contain a mention
+        if (!message) {
+            return;
+        }
+        
+        if (!message.text || typeof message.text !== 'string') {
+            return;
+        }
+        
+        if (!message.text.includes('@')) {
+            return;
         }
 
 
@@ -129,13 +140,13 @@ export class AiBotApp extends App implements IPostMessageSent {
 
         // Prevent infinite loops by not responding to our own messages
         const appUser = await read.getUserReader().getAppUser();
-        if (appUser && message.sender.id === appUser.id) {
+        if (appUser && message.sender && message.sender.id === appUser.id) {
             return;
         }
 
-        // Get channel information
-        const channelName = message.room.displayName || message.room.slugifiedName || 'unknown';
-        const channelTopic = message.room.description || 'no topic set';
+        // Get channel information with safety checks
+        const channelName = (message.room && (message.room.displayName || message.room.slugifiedName)) || 'unknown';
+        const channelTopic = (message.room && message.room.description) || 'no topic set';
         
         // Extract bot name from the message
         const botName = this.extractBotName(message.text);
@@ -146,18 +157,24 @@ export class AiBotApp extends App implements IPostMessageSent {
         // Create response message with the original message content, ID, channel name and topic
         const responseText = `🤖 Bot mentioned! Received message: "${message.text}" with ID: ${message.id || 'unknown'}\nChannel: ${channelName}\nTopic: ${channelTopic}`;
         
+        // Ensure we have a valid room to respond to
+        if (!message.room) {
+            this.getLogger().error('Cannot respond: message.room is undefined');
+            return;
+        }
+        
         const builder = modify.getCreator().startMessage()
             .setRoom(message.room)
             .setText(responseText);
 
         try {
             await modify.getCreator().finish(builder);
-            this.getLogger().info(`Responded to bot mention in room: ${channelName} (${message.room.id})`);
+            this.getLogger().info(`Responded to bot mention in room: ${channelName} (${message.room.id || 'unknown'})`);
         } catch (error) {
             this.getLogger().error('Failed to send response message:', error);
         }
     }
 }
 
-// Export for CommonJS compatibility (required by RocketChat Apps Engine)
-module.exports = { AiBotApp };
+// Export for both ES modules and CommonJS compatibility
+module.exports.AiBotApp = AiBotApp;
