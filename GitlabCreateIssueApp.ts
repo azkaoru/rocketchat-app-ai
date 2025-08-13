@@ -12,11 +12,10 @@ import { App } from '@rocket.chat/apps-engine/definition/App';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { IMessage, IPostMessageSent } from '@rocket.chat/apps-engine/definition/messages';
 
-export class GitlabTriggerPipelineApp extends App implements IPostMessageSent {
+export class GitlabCreateIssueApp extends App implements IPostMessageSent {
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
         super(info, logger, accessors);
     }
-
 
     /**
      * Handle when a message is sent
@@ -36,20 +35,20 @@ export class GitlabTriggerPipelineApp extends App implements IPostMessageSent {
 
         const sender = message.sender;
         const room = message.room;
-        const text = message.text || ''; 
+        const text = message.text || '';
 
-	// Check for bot mentions - detect @ai_deepseek and @ai_qwen
+        // Check for bot mentions - detect @ai_deepseek and @ai_qwen
         const botMentionPattern = /@(?:ai_deepseek|ai_qwen)(?:\s|$|[^a-zA-Z0-9._-])/i;
         if (!botMentionPattern.test(text)) {
             return; // No bot mentioned, skip
         }
 
-	 // Get channel information
+        // Get channel information
         const channelName = (room && (room.displayName || room.slugifiedName)) || 'unknown';
         const channelTopic = (room && room.description) || 'no topic set';
         const botName = this.extractBotName(text);
-	
-	// Create GitLab issue with the message content
+
+        // Create GitLab issue with the message content
         await this.createGitLabIssue(message, channelName, channelTopic, botName, http, modify);
     }
 
@@ -158,5 +157,4 @@ export class GitlabTriggerPipelineApp extends App implements IPostMessageSent {
             this.getLogger().error('Error creating GitLab issue:', error);
         }
     }
-
 }
