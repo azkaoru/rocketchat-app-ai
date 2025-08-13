@@ -26,7 +26,7 @@ export class GitlabTriggerPipelineApp extends App implements IPostMessageSent {
         read: IRead,
         http: IHttp,
         persistence: IPersistence,
-        modify: IModify
+        modify: IModify,
     ): Promise<void> {
         // Skip messages from the app itself to prevent loops
         const appUser = await read.getUserReader().getAppUser();
@@ -38,9 +38,22 @@ export class GitlabTriggerPipelineApp extends App implements IPostMessageSent {
         const room = message.room;
         const text = message.text || ''; 
 
+	// Check for bot mentions - detect @ai_deepseek and @ai_qwen
+        const botMentionPattern = /@(?:ai_deepseek|ai_qwen)(?:\s|$|[^a-zA-Z0-9._-])/i;
+        if (!botMentionPattern.test(text)) {
+            return; // No bot mentioned, skip
+        }
 
+	 // Get channel information
+        const channelName = (room && (room.displayName || room.slugifiedName)) || 'unknown';
+        const channelTopic = (room && room.description) || 'no topic set';
+        const botName = this.extractBotName(text);
+	
+	// Create GitLab issue with the message content
+        await this.createGitLabIssue(message, channelName, channelTopic, botName, http, modify);
     }
-/**
+
+    /**
      * Extracts the bot name from a message text
      * @param text The message text
      * @returns The extracted bot name or 'unknown'
@@ -54,69 +67,96 @@ export class GitlabTriggerPipelineApp extends App implements IPostMessageSent {
     }
 
     /**
-     * Triggers GitLab pipeline if environment variables are configured
+     * Creates GitLab issue if environment variables are configured
      * @param message The original message
      * @param channelName The channel name
      * @param channelTopic The channel topic
      * @param botName The mentioned bot name
      * @param http HTTP accessor for making requests
+     * @param modify Modify accessor for creating responses
      */
-    private async triggerGitLabPipeline(
-        message: IMessage, 
-        channelName: string, 
-        channelTopic: string, 
-        botName: string, 
-        http: IHttp
+    private async createGitLabIssue(
+        message: IMessage,
+        channelName: string,
+        channelTopic: string,
+        botName: string,
+        http: IHttp,
+        modify?: IModify,
     ): Promise<void> {
-        const trigger = process.env.GITLAB_PIPELINE_TRIGGER;
-        if (trigger !== 'true') {
+        const enabled = process.env.GITLAB_CREATE_ISSUE_ENABLED;
+        if (enabled !== 'true') {
             return;
         }
 
-        const projectId = process.env.GITLAB_PIPELINE_TRIGGER_PROJECT_ID;
-        const token = process.env.GITLAB_PIPELINE_TRIGGER_TOKEN;
-        const ref = process.env.GITLAB_PIPELINE_TRIGGER_REF;
-        const gitlabUrl = process.env.GITLAB_PIPELINE_TRIGGER_URL;
+        const projectId = process.env.GITLAB_PROJECT_ID;
+        const token = process.env.GITLAB_ACCESS_TOKEN;
+        const gitlabUrl = process.env.GITLAB_URL;
 
-        if (!projectId || !token || !ref || !gitlabUrl) {
-            this.getLogger().warn('GitLab pipeline trigger is enabled but required environment variables are missing');
+        if (!projectId || !token || !gitlabUrl) {
+            this.getLogger().warn('GitLab issue creation is enabled but required environment variables are missing');
             return;
         }
 
-        const url = `${gitlabUrl}/api/v4/projects/${projectId}/trigger/pipeline`;
-        
+        const url = `${gitlabUrl}/api/v4/projects/${projectId}/issues`;
+
+        // Generate issue title from message and context
+        const issueTitle = `Bot Message from ${channelName}: ${botName}`;
+
+        // Use ONLY the bot message content as the issue description
+        const issueDescription = message.text || '';
+
         const requestData = {
-            token: token,
-            ref: ref,
-            variables: {
-                ROCKETCHAT_MESSAGE: (message && message.text) || '',
-                ROCKETCHAT_CHANNEL_NAME: channelName,
-                ROCKETCHAT_TOPIC: channelTopic,
-                ROCKETCHAT_BOT_NAME: botName,
-                ROCKETCHAT_MESSAGE_ID: (message && message.id) || '',
-                ROCKETCHAT_SENDER: (message && message.sender && message.sender.username) || 'unknown'
-            }
+            title: issueTitle,
+            description: issueDescription,
+            labels: ['rocketchat-bot', 'auto-generated'],
+            assignees: [botName],
         };
 
         const request = {
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
             },
-            content: JSON.stringify(requestData)
+            content: JSON.stringify(requestData),
         };
 
         try {
             const response = await http.post(url, request);
-            
+
             if (response.statusCode >= 200 && response.statusCode < 300) {
-                this.getLogger().info(`GitLab pipeline triggered successfully. Status: ${response.statusCode}`);
+                this.getLogger().info(`GitLab issue created successfully. Status: ${response.statusCode}`);
+
+                // Parse response to get issue details
+                let issueUrl = 'unknown';
+                try {
+                    const responseData = JSON.parse(response.content || '{}');
+                    issueUrl = responseData.web_url || `${gitlabUrl}/${projectId}/issues/${responseData.iid || ''}`;
+                } catch (parseError) {
+                    this.getLogger().warn('Could not parse GitLab response for issue URL');
+                }
+
+                this.getLogger().info(`Issue created at: ${issueUrl}`);
+                
+                // Send the GitLab issue URL back to the user
+                if (modify && message.room && issueUrl !== 'unknown') {
+                    const responseText = `🎫 GitLab issue created: ${issueUrl}`;
+                    const builder = modify.getCreator().startMessage()
+                        .setRoom(message.room)
+                        .setText(responseText);
+
+                    try {
+                        await modify.getCreator().finish(builder);
+                        this.getLogger().info(`Sent GitLab issue URL to user in room: ${channelName}`);
+                    } catch (error) {
+                        this.getLogger().error('Failed to send GitLab issue URL message:', error);
+                    }
+                }
             } else {
-                this.getLogger().error(`Failed to trigger GitLab pipeline. Status: ${response.statusCode}, Response: ${response.content}`);
+                this.getLogger().error(`Failed to create GitLab issue. Status: ${response.statusCode}, Response: ${response.content}`);
             }
         } catch (error) {
-            this.getLogger().error('Error triggering GitLab pipeline:', error);
+            this.getLogger().error('Error creating GitLab issue:', error);
         }
     }
-
 
 }
