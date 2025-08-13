@@ -117,6 +117,7 @@ This issue was automatically created from a bot mention in RocketChat.`;
             title: issueTitle,
             description: issueDescription,
             labels: ['rocketchat-bot', 'auto-generated'],
+            assignees: [botName],
         };
 
         const request = {
