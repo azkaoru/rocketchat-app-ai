@@ -49,7 +49,7 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
         const botName = this.extractBotName(text);
 
         // Create GitLab issue with the message content
-        await this.createGitLabIssue(message, channelName, channelTopic, botName, http);
+        await this.createGitLabIssue(message, channelName, channelTopic, botName, http, modify);
     }
 
     /**
@@ -72,6 +72,7 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
      * @param channelTopic The channel topic
      * @param botName The mentioned bot name
      * @param http HTTP accessor for making requests
+     * @param modify Modify accessor for creating responses
      */
     private async createGitLabIssue(
         message: IMessage,
@@ -79,6 +80,7 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
         channelTopic: string,
         botName: string,
         http: IHttp,
+        modify?: IModify,
     ): Promise<void> {
         const enabled = process.env.GITLAB_CREATE_ISSUE_ENABLED;
         if (enabled !== 'true') {
@@ -99,19 +101,8 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
         // Generate issue title from message and context
         const issueTitle = `Bot Message from ${channelName}: ${botName}`;
 
-        // Use the bot message as the issue description with additional context
-        const issueDescription = `**Original Message:**
-${message.text || ''}
-
-**Channel Information:**
-- Channel: ${channelName}
-- Topic: ${channelTopic}
-- Bot Mentioned: ${botName}
-- Message ID: ${message.id || 'unknown'}
-- Sender: ${message.sender?.username || 'unknown'}
-
-**Message Details:**
-This issue was automatically created from a bot mention in RocketChat.`;
+        // Use ONLY the bot message content as the issue description
+        const issueDescription = message.text || '';
 
         const requestData = {
             title: issueTitle,
@@ -144,6 +135,21 @@ This issue was automatically created from a bot mention in RocketChat.`;
                 }
 
                 this.getLogger().info(`Issue created at: ${issueUrl}`);
+                
+                // Send the GitLab issue URL back to the user
+                if (modify && message.room && issueUrl !== 'unknown') {
+                    const responseText = `🎫 GitLab issue created: ${issueUrl}`;
+                    const builder = modify.getCreator().startMessage()
+                        .setRoom(message.room)
+                        .setText(responseText);
+
+                    try {
+                        await modify.getCreator().finish(builder);
+                        this.getLogger().info(`Sent GitLab issue URL to user in room: ${channelName}`);
+                    } catch (error) {
+                        this.getLogger().error('Failed to send GitLab issue URL message:', error);
+                    }
+                }
             } else {
                 this.getLogger().error(`Failed to create GitLab issue. Status: ${response.statusCode}, Response: ${response.content}`);
             }
