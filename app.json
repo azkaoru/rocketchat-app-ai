@@ -10,8 +10,8 @@
     },
     "name": "AI Bot",
     "nameSlug": "ai-bot",
-    "classFile": "GitlabTriggerPipelineApp.ts",
-    "description": "Trigger gitlab pipeline for ai anayze",
+    "classFile": "GitlabCreateIssueApp.ts",
+    "description": "Create gitlab issues from bot messages for ai analyze",
     "permissions": [
         {
             "name": "message.read"
