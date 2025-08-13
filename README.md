@@ -58,26 +58,69 @@ Topic: 一般的な議論のためのチャネル
 
 同時に、GitLab パイプライントリガー機能が有効な場合、設定されたGitLabプロジェクトのパイプラインがトリガーされます。
 
+## ビルドとデプロイ
+
+このアプリのビルドには、通常の `npm run build` は利用せず、RocketChat Apps CLI の `rc-apps package` と `rc-apps deploy` を利用します。
+
+### 利用可能なコマンド
+
+#### 直接RocketChat Apps CLIを使用:
+- `rc-apps package` または `npx @rocket.chat/apps-cli package` - アプリをパッケージ化（ビルドとパッケージを同時実行）
+- `rc-apps deploy` または `npx @rocket.chat/apps-cli deploy` - RocketChatサーバーにデプロイ
+- `rc-apps watch` または `npx @rocket.chat/apps-cli watch` - ファイル変更を監視して自動再デプロイ
+
+#### npm scriptsを使用:
+- `npm run build` - アプリをパッケージ化
+- `npm run deploy` - RocketChatサーバーにデプロイ
+- `npm run start` - アプリを起動
+
 ## セットアップ
+
+### オプション1: RocketChat Apps CLI をグローバルインストール
+
+1. RocketChat Apps CLI をグローバルインストール:
+```bash
+npm install -g @rocket.chat/apps-cli
+```
+
+2. 依存関係をインストール:
+```bash
+npm install
+```
+
+3. アプリをパッケージ化:
+```bash
+rc-apps package
+```
+
+4. RocketChatサーバーにデプロイ:
+```bash
+rc-apps deploy
+```
+
+### オプション2: npxを使用（推奨）
 
 1. 依存関係をインストール:
 ```bash
 npm install
 ```
 
-2. TypeScriptコードをビルド:
+2. アプリをパッケージ化:
 ```bash
 npm run build
 ```
-
-3. プロジェクトをパッケージ:
+または
 ```bash
-npm run package
+npx @rocket.chat/apps-cli package
 ```
 
-4. RocketChatサーバーにデプロイ:
+3. RocketChatサーバーにデプロイ:
 ```bash
 npm run deploy
+```
+または
+```bash
+npx @rocket.chat/apps-cli deploy
 ```
 
 ## ファイル構造
@@ -89,13 +132,17 @@ npm run deploy
 
 ## 開発
 
-このアプリはTypeScriptで開発されています。コードを変更した後は、必ずビルドしてください：
+このアプリはTypeScriptで開発されています。コードを変更した後は、アプリをパッケージ化してデプロイしてください：
 
 ```bash
 npm run build
 ```
+または
+```bash
+rc-apps package
+```
 
-TypeScriptのコンパイラが型チェックを行い、エラーがないことを確認できます。
+TypeScriptのコンパイルと型チェックは、パッケージ化時に自動的に行われます。
 
 ## 対応する@メンション
 
