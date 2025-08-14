@@ -1,0 +1,14 @@
+services:
+  rocketchat-app-builder:
+    build:
+      context: ..
+      dockerfile: container/Dockerfile
+    volumes:
+      - ../dist:/app/dist
+    command: >
+      sh -c "
+        echo 'Building Rocket.Chat AI App...' &&
+        npm run build &&
+        echo 'Build completed successfully!' &&
+        ls -la dist/
+      "
