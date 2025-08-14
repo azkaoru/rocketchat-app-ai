@@ -37,6 +37,15 @@ export const settings: Array<ISetting> = [
         i18nLabel: 'GitLab URL for Issues',
         i18nDescription: 'The GitLab instance URL for issue creation (e.g., https://gitlab.com)',
     },
+    {
+        id: 'gitlab_tls_verify',
+        type: SettingType.BOOLEAN,
+        packageValue: false,
+        required: false,
+        public: false,
+        i18nLabel: 'GitLab TLS Certificate Verification',
+        i18nDescription: 'Enable TLS certificate verification for GitLab API requests. Disable for self-signed certificates.',
+    },
 ];
 
 export enum SettingId {
@@ -44,4 +53,5 @@ export enum SettingId {
     GITLAB_PROJECT_ID = 'gitlab_project_id',
     GITLAB_ACCESS_TOKEN = 'gitlab_access_token',
     GITLAB_URL = 'gitlab_url',
+    GITLAB_TLS_VERIFY = 'gitlab_tls_verify',
 }
