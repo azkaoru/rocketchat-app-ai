@@ -1,9 +1,6 @@
 # Build image for Rocket.Chat AI App
-# Using Node.js v22.17.1 and npm v8.19.2 as specified
-FROM node:22.17.1-alpine
-
-# Install npm v8.19.2 as required
-RUN npm config set strict-ssl false && npm install -g npm@8.19.2 && npm config set strict-ssl true
+# Using Node.js v22.18.0 with built-in npm
+FROM node:22.18.0-alpine
 
 # Set working directory
 WORKDIR /app

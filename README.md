@@ -62,23 +62,23 @@ Topic: 一般的な議論のためのチャネル
 
 このアプリのビルドには、通常の `npm run build` は利用せず、RocketChat Apps CLI の `rc-apps package` と `rc-apps deploy` を利用します。
 
-### Dockerコンテナを使用したビルド
+### Podmanコンテナを使用したビルド
 
-Node.js v22.17.1とnpm v8.19.2を使用した自動化されたビルド環境を提供しています。
+Node.js v22.18.0と組み込みnpmを使用した自動化されたビルド環境を提供しています。
 
-#### Docker単体での使用:
+#### Podman単体での使用:
 ```bash
 # イメージをビルド
-docker build -f container/Dockerfile -t rocketchat-ai-app-builder .
+podman build -f container/Dockerfile -t rocketchat-ai-app-builder .
 
 # ビルドを実行してアーティファクトを取得
-docker run --rm -v $(pwd):/output rocketchat-ai-app-builder sh -c "cp -r /app/dist/* /output/"
+podman run --rm -v $(pwd):/output rocketchat-ai-app-builder sh -c "cp -r /app/dist/* /output/"
 ```
 
-#### Docker Composeでの使用:
+#### Podman Composeでの使用:
 ```bash
 cd container
-docker compose up --build
+podman-compose up --build
 ```
 
 詳細は[container/README.md](container/README.md)を参照してください。
