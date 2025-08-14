@@ -11,10 +11,15 @@ import {
 import { App } from '@rocket.chat/apps-engine/definition/App';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { IMessage, IPostMessageSent } from '@rocket.chat/apps-engine/definition/messages';
+import { SettingId, settings } from './config/Settings';
 
 export class GitlabCreateIssueApp extends App implements IPostMessageSent {
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
         super(info, logger, accessors);
+    }
+
+    public async extendConfiguration(configuration: IConfigurationExtend): Promise<void> {
+        await Promise.all(settings.map((setting) => configuration.settings.provideSetting(setting)));
     }
 
     /**
@@ -86,14 +91,14 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
     ): Promise<void> {
         const settings = read.getEnvironmentReader().getSettings();
         
-        const enabled = await settings.getValueById('gitlab_create_issue_enabled');
+        const enabled = await settings.getValueById(SettingId.GITLAB_CREATE_ISSUE_ENABLED);
         if (!enabled) {
             return;
         }
 
-        const projectId = await settings.getValueById('gitlab_project_id');
-        const token = await settings.getValueById('gitlab_access_token');
-        const gitlabUrl = await settings.getValueById('gitlab_url');
+        const projectId = await settings.getValueById(SettingId.GITLAB_PROJECT_ID);
+        const token = await settings.getValueById(SettingId.GITLAB_ACCESS_TOKEN);
+        const gitlabUrl = await settings.getValueById(SettingId.GITLAB_URL);
 
         if (!projectId || !token || !gitlabUrl) {
             this.getLogger().warn('GitLab issue creation is enabled but required settings are missing');

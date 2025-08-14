@@ -37,39 +37,5 @@
     ],
     "implements": [
         "IPostMessageSent"
-    ],
-    "settings": [
-        {
-            "id": "gitlab_create_issue_enabled",
-            "type": "boolean",
-            "packageValue": false,
-            "public": false,
-            "i18nLabel": "Enable GitLab Issue Creation",
-            "i18nDescription": "Enable creating GitLab issues when bot is mentioned"
-        },
-        {
-            "id": "gitlab_project_id",
-            "type": "string",
-            "packageValue": "",
-            "public": false,
-            "i18nLabel": "GitLab Project ID for Issues",
-            "i18nDescription": "The GitLab project ID for creating issues"
-        },
-        {
-            "id": "gitlab_access_token",
-            "type": "password",
-            "packageValue": "",
-            "public": false,
-            "i18nLabel": "GitLab Access Token",
-            "i18nDescription": "The access token for GitLab API operations"
-        },
-        {
-            "id": "gitlab_url",
-            "type": "string",
-            "packageValue": "",
-            "public": false,
-            "i18nLabel": "GitLab URL for Issues",
-            "i18nDescription": "The GitLab instance URL for issue creation (e.g., https://gitlab.com)"
-        }
     ]
 }
