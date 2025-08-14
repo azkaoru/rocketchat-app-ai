@@ -51,6 +51,12 @@ export class AiBotApp extends App implements IPostMessageSent {
         botName: string, 
         http: IHttp
     ): Promise<void> {
+        // Check if process and process.env are available
+        if (typeof process === 'undefined' || !process.env) {
+            this.getLogger().warn('Environment variables are not accessible (process.env is undefined)');
+            return;
+        }
+
         const trigger = process.env.GITLAB_PIPELINE_TRIGGER;
         if (trigger !== 'true') {
             return;

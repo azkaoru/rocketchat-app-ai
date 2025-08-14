@@ -82,6 +82,12 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
         http: IHttp,
         modify?: IModify,
     ): Promise<void> {
+        // Check if process and process.env are available
+        if (typeof process === 'undefined' || !process.env) {
+            this.getLogger().warn('Environment variables are not accessible (process.env is undefined)');
+            return;
+        }
+
         const enabled = process.env.GITLAB_CREATE_ISSUE_ENABLED;
         if (enabled !== 'true') {
             return;
