@@ -40,46 +40,6 @@
     ],
     "settings": [
         {
-            "id": "gitlab_pipeline_trigger",
-            "type": "boolean",
-            "packageValue": false,
-            "public": false,
-            "i18nLabel": "Enable GitLab Pipeline Trigger",
-            "i18nDescription": "Enable triggering GitLab pipelines when bot is mentioned"
-        },
-        {
-            "id": "gitlab_pipeline_project_id",
-            "type": "string",
-            "packageValue": "",
-            "public": false,
-            "i18nLabel": "GitLab Pipeline Project ID",
-            "i18nDescription": "The GitLab project ID for pipeline triggers"
-        },
-        {
-            "id": "gitlab_pipeline_token",
-            "type": "password",
-            "packageValue": "",
-            "public": false,
-            "i18nLabel": "GitLab Pipeline Trigger Token",
-            "i18nDescription": "The token for triggering GitLab pipelines"
-        },
-        {
-            "id": "gitlab_pipeline_ref",
-            "type": "string",
-            "packageValue": "main",
-            "public": false,
-            "i18nLabel": "GitLab Pipeline Branch/Ref",
-            "i18nDescription": "The branch or ref to use for pipeline triggers"
-        },
-        {
-            "id": "gitlab_pipeline_url",
-            "type": "string",
-            "packageValue": "",
-            "public": false,
-            "i18nLabel": "GitLab URL",
-            "i18nDescription": "The GitLab instance URL (e.g., https://gitlab.com)"
-        },
-        {
             "id": "gitlab_create_issue_enabled",
             "type": "boolean",
             "packageValue": false,
