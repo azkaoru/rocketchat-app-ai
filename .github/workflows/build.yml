@@ -1,0 +1,43 @@
+name: Build Rocket.Chat AI App
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Build Docker image
+      run: |
+        docker build -f container/Dockerfile -t rocketchat-ai-app-builder .
+        
+    - name: Run build in container
+      run: |
+        docker run --rm -v $(pwd):/output rocketchat-ai-app-builder sh -c "cp -r /app/dist/* /output/"
+        
+    - name: List build artifacts
+      run: |
+        echo "Build artifacts:"
+        ls -la *.zip || echo "No zip files found in root"
+        ls -la dist/ || echo "No dist directory found"
+        
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: rocketchat-ai-app
+        path: |
+          dist/
+          *.zip
+        retention-days: 30
