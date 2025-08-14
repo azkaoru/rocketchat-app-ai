@@ -37,38 +37,36 @@ export class AiBotApp extends App implements IPostMessageSent {
     }
 
     /**
-     * Triggers GitLab pipeline if environment variables are configured
+     * Triggers GitLab pipeline if app settings are configured
      * @param message The original message
      * @param channelName The channel name
      * @param channelTopic The channel topic
      * @param botName The mentioned bot name
      * @param http HTTP accessor for making requests
+     * @param read Read accessor for app settings
      */
     private async triggerGitLabPipeline(
         message: IMessage, 
         channelName: string, 
         channelTopic: string, 
         botName: string, 
-        http: IHttp
+        http: IHttp,
+        read: IRead
     ): Promise<void> {
-        // Check if process and process.env are available
-        if (typeof process === 'undefined' || !process.env) {
-            this.getLogger().warn('Environment variables are not accessible (process.env is undefined)');
+        const settings = read.getEnvironmentReader().getSettings();
+        
+        const trigger = await settings.getValueById('gitlab_pipeline_trigger');
+        if (!trigger) {
             return;
         }
 
-        const trigger = process.env.GITLAB_PIPELINE_TRIGGER;
-        if (trigger !== 'true') {
-            return;
-        }
-
-        const projectId = process.env.GITLAB_PIPELINE_TRIGGER_PROJECT_ID;
-        const token = process.env.GITLAB_PIPELINE_TRIGGER_TOKEN;
-        const ref = process.env.GITLAB_PIPELINE_TRIGGER_REF;
-        const gitlabUrl = process.env.GITLAB_PIPELINE_TRIGGER_URL;
+        const projectId = await settings.getValueById('gitlab_pipeline_project_id');
+        const token = await settings.getValueById('gitlab_pipeline_token');
+        const ref = await settings.getValueById('gitlab_pipeline_ref');
+        const gitlabUrl = await settings.getValueById('gitlab_pipeline_url');
 
         if (!projectId || !token || !ref || !gitlabUrl) {
-            this.getLogger().warn('GitLab pipeline trigger is enabled but required environment variables are missing');
+            this.getLogger().warn('GitLab pipeline trigger is enabled but required settings are missing');
             return;
         }
 
@@ -158,7 +156,7 @@ export class AiBotApp extends App implements IPostMessageSent {
         const botName = this.extractBotName(message.text);
         
         // Trigger GitLab pipeline if configured
-        await this.triggerGitLabPipeline(message, channelName, channelTopic, botName, http);
+        await this.triggerGitLabPipeline(message, channelName, channelTopic, botName, http, read);
         
         // Create response message with the original message content, ID, channel name and topic
         const responseText = `🤖 Bot mentioned! Received message: "${message.text}" with ID: ${message.id || 'unknown'}\nChannel: ${channelName}\nTopic: ${channelTopic}`;
