@@ -1,46 +1,38 @@
 # RocketChat AI Bot App
 
-RocketChat アプリケーションで、botにメンションしたメッセージを受け取って、受信したメッセージと受信したメッセージのID、チャネル名、チャネルのトピックを返すアプリです。
+RocketChat アプリケーションで、botにメンションしたメッセージを受け取って、GitLab issueを作成するアプリです。
 
 このアプリは**TypeScript**で開発されており、RocketChatの推奨開発言語に準拠しています。
-
-また、環境変数が設定されている場合、GitLab CIパイプラインをトリガーする機能も含まれています。
 
 ## 機能
 
 - メッセージ内の `@ai_deepseek`, `@ai_qwen` のメンションを検出
-- メンションが含まれるメッセージに対して自動応答
-- 元のメッセージ内容とメッセージIDを含む応答メッセージを送信
-- チャネル名とチャネルのトピック（説明）を含む応答メッセージを送信
+- メンションが含まれるメッセージからGitLab issueを自動作成
 - 無限ループを防ぐためのアプリユーザー検出機能
-- **NEW**: GitLab CE パイプライントリガー機能
 
-## GitLab パイプライントリガー機能
+## GitLab Issue作成機能
 
-環境変数 `GITLAB_PIPELINE_TRIGGER` が `true` に設定されている場合、メンションを受信した際に自動的にGitLab CIパイプラインをトリガーします。
+RocketChatアプリの設定で有効化すると、botメンションを受信した際に自動的にGitLab issueを作成します。
 
-### 必要な環境変数
+### 必要な設定
 
-- `GITLAB_PIPELINE_TRIGGER`: "true" に設定するとパイプライントリガー機能を有効化
-- `GITLAB_PIPELINE_TRIGGER_PROJECT_ID`: GitLabプロジェクトID
-- `GITLAB_PIPELINE_TRIGGER_TOKEN`: パイプライントリガートークン
-- `GITLAB_PIPELINE_TRIGGER_REF`: トリガーするブランチまたはref (例: "main")
-- `GITLAB_PIPELINE_TRIGGER_URL`: GitLabインスタンスのURL (例: "https://gitlab.example.com")
+RocketChatの管理画面のアプリ設定で以下を設定してください：
 
-### GitLab CI に渡されるデータ
+- `Enable GitLab Issue Creation`: issue作成機能を有効化
+- `GitLab Project ID for Issues`: GitLabプロジェクトID
+- `GitLab Access Token`: GitLab APIアクセストークン
+- `GitLab URL for Issues`: GitLabインスタンスのURL (例: "https://gitlab.example.com")
 
-パイプラインがトリガーされる際、以下のデータが環境変数としてGitLab CIジョブで利用可能になります：
+### 作成されるGitLab Issue
 
-- `ROCKETCHAT_MESSAGE`: 受信したメッセージの内容
-- `ROCKETCHAT_CHANNEL_NAME`: チャネル名
-- `ROCKETCHAT_TOPIC`: チャネルのトピック
-- `ROCKETCHAT_BOT_NAME`: メンションされたbot名 (ai_deepseek または ai_qwen)
-- `ROCKETCHAT_MESSAGE_ID`: メッセージID
-- `ROCKETCHAT_SENDER`: メッセージを送信したユーザー名
+- **タイトル**: `Bot Message from {チャネル名}: {botの名前}`
+- **説明**: メンションを含むメッセージの内容
+- **ラベル**: `rocketchat-bot`, `auto-generated`
+- **アサイン**: メンションされたbot名
 
 ### GitLab API エンドポイント
 
-`{GITLAB_PIPELINE_TRIGGER_URL}/api/v4/projects/{GITLAB_PIPELINE_TRIGGER_PROJECT_ID}/trigger/pipeline`
+`{GitLab URL}/api/v4/projects/{Project ID}/issues`
 
 ## 動作例
 
@@ -49,14 +41,7 @@ RocketChat アプリケーションで、botにメンションしたメッセー
 @ai_deepseek こんにちは、助けてください
 ```
 
-アプリは以下のような応答を返します：
-```
-🤖 Bot mentioned! Received message: "@ai_deepseek こんにちは、助けてください" with ID: xyz123
-Channel: general
-Topic: 一般的な議論のためのチャネル
-```
-
-同時に、GitLab パイプライントリガー機能が有効な場合、設定されたGitLabプロジェクトのパイプラインがトリガーされます。
+GitLab issue作成機能が有効な場合、設定されたGitLabプロジェクトにissueが作成され、issue URLがチャットに返信されます。
 
 ## ビルドとデプロイ
 
@@ -151,7 +136,7 @@ npx @rocket.chat/apps-cli deploy
 ## ファイル構造
 
 - `app.json` - アプリの設定ファイル
-- `AiBotApp.ts` - メインのアプリケーションクラス（TypeScript）
+- `GitlabCreateIssueApp.ts` - メインのアプリケーションクラス（TypeScript）
 - `package.json` - プロジェクトの依存関係
 - `tsconfig.json` - TypeScript設定ファイル
 

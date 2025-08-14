@@ -49,7 +49,7 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
         const botName = this.extractBotName(text);
 
         // Create GitLab issue with the message content
-        await this.createGitLabIssue(message, channelName, channelTopic, botName, http, modify);
+        await this.createGitLabIssue(message, channelName, channelTopic, botName, http, read, modify);
     }
 
     /**
@@ -66,12 +66,13 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
     }
 
     /**
-     * Creates GitLab issue if environment variables are configured
+     * Creates GitLab issue if app settings are configured
      * @param message The original message
      * @param channelName The channel name
      * @param channelTopic The channel topic
      * @param botName The mentioned bot name
      * @param http HTTP accessor for making requests
+     * @param read Read accessor for app settings
      * @param modify Modify accessor for creating responses
      */
     private async createGitLabIssue(
@@ -80,19 +81,22 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
         channelTopic: string,
         botName: string,
         http: IHttp,
+        read: IRead,
         modify?: IModify,
     ): Promise<void> {
-        const enabled = process.env.GITLAB_CREATE_ISSUE_ENABLED;
-        if (enabled !== 'true') {
+        const settings = read.getEnvironmentReader().getSettings();
+        
+        const enabled = await settings.getValueById('gitlab_create_issue_enabled');
+        if (!enabled) {
             return;
         }
 
-        const projectId = process.env.GITLAB_PROJECT_ID;
-        const token = process.env.GITLAB_ACCESS_TOKEN;
-        const gitlabUrl = process.env.GITLAB_URL;
+        const projectId = await settings.getValueById('gitlab_project_id');
+        const token = await settings.getValueById('gitlab_access_token');
+        const gitlabUrl = await settings.getValueById('gitlab_url');
 
         if (!projectId || !token || !gitlabUrl) {
-            this.getLogger().warn('GitLab issue creation is enabled but required environment variables are missing');
+            this.getLogger().warn('GitLab issue creation is enabled but required settings are missing');
             return;
         }
 
