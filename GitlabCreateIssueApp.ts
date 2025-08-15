@@ -42,8 +42,8 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
         const room = message.room;
         const text = message.text || '';
 
-        // Check for bot mentions - detect @ai_deepseek and @ai_qwen
-        const botMentionPattern = /@(?:ai_deepseek|ai_qwen)(?:\s|$|[^a-zA-Z0-9._-])/i;
+        // Check for bot mentions - detect @ai_deepseek, @ai_qwen, and @prefix: ai_deepseek/ai_qwen patterns
+        const botMentionPattern = /@(?:(?:ai_deepseek|ai_qwen)|(?:[^@\s]*:\s*(?:ai_deepseek|ai_qwen)))(?:\s|$|[^a-zA-Z0-9._-])/i;
         if (!botMentionPattern.test(text)) {
             return; // No bot mentioned, skip
         }
@@ -52,9 +52,9 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
         const channelName = (room && (room.displayName || room.slugifiedName)) || 'unknown';
         const channelTopic = (room && room.description) || 'no-topic';
         const botName = this.extractBotName(text);
-        const excludeChannelNameBotName = botName.split(":")[1] ?? "";
+        
         // Create GitLab issue with the message content
-        await this.createGitLabIssue(message, channelName, channelTopic, excludeChannelNameBotName, http, read, modify);
+        await this.createGitLabIssue(message, channelName, channelTopic, botName, http, read, modify);
     }
 
     /**
@@ -66,8 +66,20 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
         if (!text || typeof text !== 'string') {
             return 'unknown';
         }
-        const match = text.match(/@(ai_deepseek|ai_qwen)(?:\s|$|[^a-zA-Z0-9._-])/i);
-        return match ? match[1] : 'unknown';
+        
+        // First try direct mentions like @ai_deepseek
+        const directMatch = text.match(/@(ai_deepseek|ai_qwen)(?:\s|$|[^a-zA-Z0-9._-])/i);
+        if (directMatch) {
+            return directMatch[1];
+        }
+        
+        // Then try mentions with prefix like @general: ai_deepseek
+        const prefixMatch = text.match(/@[^@\s]*:\s*(ai_deepseek|ai_qwen)(?:\s|$|[^a-zA-Z0-9._-])/i);
+        if (prefixMatch) {
+            return prefixMatch[1];
+        }
+        
+        return 'unknown';
     }
 
     /**
