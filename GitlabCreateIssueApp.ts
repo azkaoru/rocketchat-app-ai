@@ -109,7 +109,7 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
             title: issueTitle,
             description: issueDescription,
             labels: [issueLabel1, issueLabel2],
-            assignees: [botName],
+            assignee_username: botName,
         };
 
         const request = {
