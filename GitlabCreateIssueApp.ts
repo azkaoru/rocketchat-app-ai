@@ -99,6 +99,7 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
         const projectId = await settings.getValueById(SettingId.GITLAB_PROJECT_ID);
         const token = await settings.getValueById(SettingId.GITLAB_ACCESS_TOKEN);
         const gitlabUrl = await settings.getValueById(SettingId.GITLAB_URL);
+        const tlsVerify = await settings.getValueById(SettingId.GITLAB_TLS_VERIFY);
 
         if (!projectId || !token || !gitlabUrl) {
             this.getLogger().warn('GitLab issue creation is enabled but required settings are missing');
@@ -126,6 +127,8 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
                 'Authorization': `Bearer ${token}`,
             },
             content: JSON.stringify(requestData),
+            strictSSL: tlsVerify,
+            rejectUnauthorized: tlsVerify,
         };
 
         try {
