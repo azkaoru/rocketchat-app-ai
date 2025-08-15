@@ -52,9 +52,8 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
         const channelName = (room && (room.displayName || room.slugifiedName)) || 'unknown';
         const channelTopic = (room && room.description) || 'no-topic';
         const botName = this.extractBotName(text);
-        const excludeChannelNameBotName = botName.split(":")[1] ?? "";
         // Create GitLab issue with the message content
-        await this.createGitLabIssue(message, channelName, channelTopic, excludeChannelNameBotName, http, read, modify);
+        await this.createGitLabIssue(message, channelName, channelTopic, botName, http, read, modify);
     }
 
     /**
