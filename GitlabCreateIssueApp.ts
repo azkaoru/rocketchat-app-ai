@@ -42,32 +42,21 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
         const room = message.room;
         const text = message.text || '';
 
-        // Check for bot mentions - detect @ai_deepseek and @ai_qwen
-        const botMentionPattern = /@(?:ai_deepseek|ai_qwen)(?:\s|$|[^a-zA-Z0-9._-])/i;
-        if (!botMentionPattern.test(text)) {
+        // Check for bot mentions and extract bot name - detect @ai_deepseek and @ai_qwen
+        const botMentionMatch = text.match(/@(ai_deepseek|ai_qwen)(?:\s|$|[^a-zA-Z0-9._-])/i);
+        if (!botMentionMatch) {
             return; // No bot mentioned, skip
         }
 
         // Get channel information
         const channelName = (room && (room.displayName || room.slugifiedName)) || 'unknown';
         const channelTopic = (room && room.description) || 'no-topic';
-        const botName = this.extractBotName(text);
+        const botName = botMentionMatch[1]; // Extract bot name from match: ai_deepseek or ai_qwen
         // Create GitLab issue with the message content
         await this.createGitLabIssue(message, channelName, channelTopic, botName, http, read, modify);
     }
 
-    /**
-     * Extracts the bot name from a message text
-     * @param text The message text
-     * @returns The extracted bot name or 'unknown'
-     */
-    private extractBotName(text: string | undefined): string {
-        if (!text || typeof text !== 'string') {
-            return 'unknown';
-        }
-        const match = text.match(/@(ai_deepseek|ai_qwen)(?:\s|$|[^a-zA-Z0-9._-])/i);
-        return match ? match[1] : 'unknown';
-    }
+
 
     /**
      * Creates GitLab issue if app settings are configured
