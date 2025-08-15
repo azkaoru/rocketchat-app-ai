@@ -50,7 +50,7 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
 
         // Get channel information
         const channelName = (room && (room.displayName || room.slugifiedName)) || 'unknown';
-        const channelTopic = (room && room.description) || 'no topic set';
+        const channelTopic = (room && room.description) || 'no-topic';
         const botName = this.extractBotName(text);
 
         // Create GitLab issue with the message content
@@ -109,7 +109,7 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
         const url = `${gitlabUrl}/api/v4/projects/${projectId}/issues`;
 
         // Generate issue title from message and context
-        const issueTitle = `Bot Message from ${channelName}: ${botName}`;
+        const issueTitle = `【${channelTopic}/${channelName}/bot-created from ${botName}】`;
 
         // Use ONLY the bot message content as the issue description
         const issueDescription = message.text || '';
