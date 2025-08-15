@@ -114,10 +114,13 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
         // Use ONLY the bot message content as the issue description
         const issueDescription = message.text || '';
 
+	const issueLabel1 = `issue-tag-${channelTopic}`;
+	const issueLabel2 = `issue-tag-${channelName}`;
+
         const requestData = {
             title: issueTitle,
             description: issueDescription,
-            labels: ['rocketchat-bot', 'auto-generated'],
+            labels: [issueLabel1, issueLabel2],
             assignees: [botName],
         };
 
