@@ -59,6 +59,54 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
 
 
     /**
+     * Fetches GitLab user ID by username
+     * @param username The username to look up
+     * @param gitlabUrl The GitLab instance URL
+     * @param token The GitLab access token
+     * @param http HTTP accessor for making requests
+     * @param tlsVerify Whether to verify TLS certificates
+     * @returns The user ID if found, null otherwise
+     */
+    private async getGitLabUserIdByUsername(
+        username: string,
+        gitlabUrl: string,
+        token: string,
+        http: IHttp,
+        tlsVerify: boolean,
+    ): Promise<number | null> {
+        const url = `${gitlabUrl}/api/v4/users?username=${encodeURIComponent(username)}`;
+
+        const request = {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+            strictSSL: tlsVerify,
+            rejectUnauthorized: tlsVerify,
+        };
+
+        try {
+            const response = await http.get(url, request);
+
+            if (response.statusCode >= 200 && response.statusCode < 300) {
+                const users = JSON.parse(response.content || '[]');
+                if (users.length > 0) {
+                    this.getLogger().info(`Found GitLab user ID ${users[0].id} for username: ${username}`);
+                    return users[0].id;
+                } else {
+                    this.getLogger().warn(`GitLab user not found for username: ${username}`);
+                    return null;
+                }
+            } else {
+                this.getLogger().error(`Failed to fetch GitLab user. Status: ${response.statusCode}, Response: ${response.content}`);
+                return null;
+            }
+        } catch (error) {
+            this.getLogger().error('Error fetching GitLab user:', error);
+            return null;
+        }
+    }
+
+    /**
      * Creates GitLab issue if app settings are configured
      * @param message The original message
      * @param channelName The channel name
@@ -105,12 +153,19 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
 	const issueLabel1 = `issue-tag-${channelTopic}`;
 	const issueLabel2 = `issue-tag-${channelName}`;
 
-        const requestData = {
+        // Fetch GitLab user ID for the bot name
+        const assigneeId = await this.getGitLabUserIdByUsername(botName, gitlabUrl, token, http, tlsVerify);
+        
+        const requestData: any = {
             title: issueTitle,
             description: issueDescription,
             labels: [issueLabel1, issueLabel2],
-            assignee_ids: [4],
         };
+
+        // Only add assignee_ids if we successfully found a user
+        if (assigneeId !== null) {
+            requestData.assignee_ids = [assigneeId];
+        }
 
         const request = {
             headers: {

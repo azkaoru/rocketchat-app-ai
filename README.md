@@ -25,10 +25,10 @@ RocketChatの管理画面のアプリ設定で以下を設定してください�
 
 ### 作成されるGitLab Issue
 
-- **タイトル**: `Bot Message from {チャネル名}: {botの名前}`
+- **タイトル**: `【{チャネルトピック}/{チャネル名}/bot-created from {botの名前}】`
 - **説明**: メンションを含むメッセージの内容
-- **ラベル**: `rocketchat-bot`, `auto-generated`
-- **アサイン**: メンションされたbot名
+- **ラベル**: `issue-tag-{チャネルトピック}`, `issue-tag-{チャネル名}`
+- **アサイン**: メンションされたbot名（GitLab APIでユーザIDを動的に取得）
 
 ### GitLab API エンドポイント
 
