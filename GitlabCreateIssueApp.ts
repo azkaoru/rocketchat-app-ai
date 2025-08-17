@@ -50,10 +50,10 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
 
         // Get channel information
         const channelName = (room && (room.displayName || room.slugifiedName)) || 'unknown';
-        const channelTopic = (room && room.description) || 'no-topic';
+        const channelDesc = (room && room.description) || 'no-channel-desc';
         const botName = botMentionMatch[1]; // Extract bot name from match: ai_deepseek or ai_qwen
         // Create GitLab issue with the message content
-        await this.createGitLabIssue(message, channelName, channelTopic, botName, http, read, modify);
+        await this.createGitLabIssue(message, channelName, channelDesc, botName, http, read, modify);
     }
 
 
@@ -110,7 +110,7 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
      * Creates GitLab issue if app settings are configured
      * @param message The original message
      * @param channelName The channel name
-     * @param channelTopic The channel topic
+     * @param channelDesc The channel description
      * @param botName The mentioned bot name
      * @param http HTTP accessor for making requests
      * @param read Read accessor for app settings
@@ -119,7 +119,7 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
     private async createGitLabIssue(
         message: IMessage,
         channelName: string,
-        channelTopic: string,
+        channelDesc: string,
         botName: string,
         http: IHttp,
         read: IRead,
@@ -145,13 +145,13 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
         const url = `${gitlabUrl}/api/v4/projects/${projectId}/issues`;
 
         // Generate issue title from message and context
-        const issueTitle = `【${channelTopic}/${channelName}/bot-created from ${botName}】`;
+        const issueTitle = `【${channelDesc}/${channelName}/bot-created from ${botName}】`;
 
         // Use ONLY the bot message content as the issue description
         const issueDescription = message.text || '';
 
-	const issueLabel1 = `issue-tag-${channelTopic}`;
-	const issueLabel2 = `issue-tag-${channelName}`;
+	const issueLabel1 = `issue-tag-${channelName}`;
+	const issueLabel2 = `issue-tag-about-${channelDesc}`;
 
         // Fetch GitLab user ID for the bot name
         const assigneeId = await this.getGitLabUserIdByUsername(botName, gitlabUrl, token, http, tlsVerify);
