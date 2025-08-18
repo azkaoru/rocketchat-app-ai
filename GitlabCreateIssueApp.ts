@@ -196,7 +196,7 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
                 
                 // Send the GitLab issue URL back to the user
                 if (modify && message.room && issueUrl !== 'unknown') {
-                    const responseText = `🎫 GitLab issue created: ${issueUrl}`;
+                    const responseText = `🎫 GitLab issue created: [${issueUrl}](${issueUrl})`;
                     const builder = modify.getCreator().startMessage()
                         .setRoom(message.room)
                         .setText(responseText);
