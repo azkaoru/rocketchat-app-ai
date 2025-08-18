@@ -41,6 +41,9 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
         const sender = message.sender;
         const room = message.room;
         const text = message.text || '';
+        if (text === "") {
+	    return;
+        }
 
         // Check for bot mentions and extract bot name - detect @ai_deepseek and @ai_qwen
         const botMentionMatch = text.match(/@(ai_deepseek|ai_qwen)(?:\s|$|[^a-zA-Z0-9._-])/i);
@@ -147,8 +150,15 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
         // Generate issue title from message and context
         const issueTitle = `【${channelDesc}/${channelName}/bot-created from ${botName}】`;
 
+
+
+
         // Use ONLY the bot message content as the issue description
         const issueDescription = message.text || '';
+	// 1. 文字列の長さを取得
+        const botNameLength = botName.length + 1 ;
+	const trimIssueDesc = issueDescription.substring(botNameLength);
+	
 
 	const issueLabel1 = `issue-tag-${channelName}`;
 	const issueLabel2 = `issue-tag-desc-${channelDesc}`;
@@ -158,7 +168,7 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
         
         const requestData: any = {
             title: issueTitle,
-            description: issueDescription,
+            description: trimIssueDesc,
             labels: [issueLabel1, issueLabel2],
         };
 
