@@ -49,8 +49,8 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
         }
 
         // Get channel information
-        const channelName = (room && (room.displayName || room.slugifiedName)) || 'unknown';
-        const channelDesc = (room && room.description) || 'no-channel-desc';
+        const channelName = (room && (room.displayName || room.slugifiedName)) || 'undefined';
+        const channelDesc = (room && room.description) || 'undefined';
         const botName = botMentionMatch[1]; // Extract bot name from match: ai_deepseek or ai_qwen
         // Create GitLab issue with the message content
         await this.createGitLabIssue(message, channelName, channelDesc, botName, http, read, modify);
@@ -151,7 +151,7 @@ export class GitlabCreateIssueApp extends App implements IPostMessageSent {
         const issueDescription = message.text || '';
 
 	const issueLabel1 = `issue-tag-${channelName}`;
-	const issueLabel2 = `issue-tag-about-${channelDesc}`;
+	const issueLabel2 = `issue-tag-desc-${channelDesc}`;
 
         // Fetch GitLab user ID for the bot name
         const assigneeId = await this.getGitLabUserIdByUsername(botName, gitlabUrl, token, http, tlsVerify);

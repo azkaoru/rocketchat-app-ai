@@ -23,11 +23,16 @@ RocketChatの管理画面のアプリ設定で以下を設定してください�
 - `GitLab Access Token`: GitLab APIアクセストークン
 - `GitLab URL for Issues`: GitLabインスタンスのURL (例: "https://gitlab.example.com")
 
+Gitlabのアクセストークンはプロジェクトアクセストークンで必要なscopeはapiのみ（いつか設定ができるが、画面の一番にあるやつ）で、Mainterロールで動作確認した。
+
+トークンを作成するユーザは、root(Admin)でログインして作成した。
+
+
 ### 作成されるGitLab Issue
 
 - **タイトル**: `【{チャネルトピック}/{チャネル名}/bot-created from {botの名前}】`
 - **説明**: メンションを含むメッセージの内容
-- **ラベル**: `issue-tag-{チャネルトピック}`, `issue-tag-{チャネル名}`
+- **ラベル**: `issue-tag-{チャネル名}`,`issue-tag-desc-{チャネルDescription}`
 - **アサイン**: メンションされたbot名（GitLab APIでユーザIDを動的に取得）
 
 ### GitLab API エンドポイント
